@@ -55,4 +55,32 @@ let ``Tests for arrayChilds function`` () =
         Assert.Equal("keno.html", elems.[0].GetProperty("name").GetString())
         Assert.True(elems.[0].GetProperty("required").GetBoolean())
 
+[<Fact>]
+let ``Tests for isDir function`` () =
+    let json : string = """
+        {
+            "level1": [
+                {
+                  "md5": "fd632797a9adb10d068868f86a2b6951", 
+                  "name": "keno.html", 
+                  "required": true
+                },
+                {
+                    "level2": []
+                }
+            ]
+        }
+    """
+    let root : JsonElement = JsonDocument.Parse(json).RootElement
+    let propsR : Result<array<JsonProperty>, string> = objectChilds root |> Result.map Seq.toArray
+    let childsR : Result<array<JsonElement>, string> = 
+        propsR 
+        |> Result.bind (fun (props: array<JsonProperty>) -> arrayChilds props.[0]) 
+        |> Result.map Seq.toArray
+    match childsR with
+    | Error e -> failwith "Invalid branch"
+    | Ok childs ->
+        Assert.False(isDir childs.[0])
+        Assert.True(isDir childs.[1])
+
         
