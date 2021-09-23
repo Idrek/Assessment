@@ -81,4 +81,8 @@ with
             loop assets
             filePaths.ToArray()
 
+type IDownloable =
+    abstract Download : string -> string -> Async<Result<unit, string>>
+    abstract Resume : string -> string -> Async<Result<unit, string>>
+
 
