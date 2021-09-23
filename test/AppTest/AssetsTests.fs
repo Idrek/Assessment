@@ -127,3 +127,36 @@ fri"""
             Assert.Equal(output, fileData)
             File.Delete fileName
     }
+
+[<Fact>]
+let ``Tests for Assets.Resume method`` () =
+    let t = new Task(fun () -> WebServer.App.main Array.empty |> ignore)
+    t.Start()
+    // Some time for the web server to start.
+    Thread.Sleep 1000
+    async {
+        let httpClientFactory : IHttpClientFactory = provider().GetRequiredService<IHttpClientFactory>()
+        let assets : IDownloable = Assets(httpClientFactory) :> IDownloable
+        let fileName : string = Path.GetTempFileName ()
+        let! result = assets.Download "http://localhost:5000/partial.txt" fileName
+        match result with
+        | Error e -> failwithf "Invalid branch (download): %A" e
+        | Ok () ->
+            let! result = assets.Resume "http://localhost:5000/complete.txt" fileName
+            match result with
+            | Error e -> failwithf "Invalid branch (restart): %A" e
+            | Ok () ->
+                let fileData : string = File.ReadAllText fileName
+                let output : string = 
+                    """monday
+tuesday
+wednesday
+thursday
+friday
+saturday
+sunday"""
+                Assert.Equal(output, fileData)
+                File.Delete fileName
+    }
+
+
