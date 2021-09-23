@@ -10,3 +10,7 @@ let fromByte (case: Case) (b: byte) : string =
         | Lower -> "{0:x2}"
         | Upper -> "{0:X2}"
     String.Format(hexFormat, b)
+
+let fromBytes (case: Case) (bytes: seq<byte>) : string =
+    bytes |> Seq.map (fromByte case) |> String.Concat
+    
