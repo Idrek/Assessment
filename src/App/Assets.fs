@@ -3,6 +3,10 @@ namespace App.Assets
 module FS = App.FileSystem
 module Json = App.Json
 
+type File = System.IO.File
+type FileStream = System.IO.FileStream
+type HttpClient = System.Net.Http.HttpClient
+type IHttpClientFactory = System.Net.Http.IHttpClientFactory
 type JsonDocument = System.Text.Json.JsonDocument
 type JsonElement = System.Text.Json.JsonElement
 type JsonProperty = System.Text.Json.JsonProperty
@@ -85,4 +89,29 @@ type IDownloable =
     abstract Download : string -> string -> Async<Result<unit, string>>
     abstract Resume : string -> string -> Async<Result<unit, string>>
 
+type Assets (clientFactory: IHttpClientFactory) =
+
+    interface IDownloable with
+
+        member this.Download (uri: string) (localPath: string) : Async<Result<unit, string>> =
+            let client : HttpClient = clientFactory.CreateClient("Assets")
+            let fileStream : FileStream = File.Create(localPath)
+            async {
+                let buffer : array<byte> = Array.zeroCreate 4096
+                let mutable isEnd : bool = false
+                try
+                    use! responseStream = client.GetStreamAsync(uri) |> Async.AwaitTask
+                    while not isEnd do
+                        let read = responseStream.Read(buffer, 0, 4096)
+                        if read > 0
+                        then
+                            let bufferByteOffset : int = 0
+                            fileStream.Write(buffer, bufferByteOffset, read)
+                            fileStream.Flush()
+                        else isEnd <- true
+                    fileStream.Close()
+                    return Ok ()
+                with
+                    | ex -> return Result.Error ex.Message
+            }
 
