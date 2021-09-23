@@ -28,4 +28,31 @@ let ``Tests for objectChilds function`` () =
         Assert.Equal(JsonValueKind.String, props.[1].Value.ValueKind)
         Assert.Equal("black", props.[1].Value.GetString())
 
+[<Fact>]
+let ``Tests for arrayChilds function`` () =
+    let json : string = """
+        {
+            "en_GB": [
+                {
+                  "md5": "fd632797a9adb10d068868f86a2b6951", 
+                  "name": "keno.html", 
+                  "required": true
+                }
+            ],
+            "skin": "black"
+        }
+    """
+    let root : JsonElement = JsonDocument.Parse(json).RootElement
+    let propsR : Result<array<JsonProperty>, string> = objectChilds root |> Result.map Seq.toArray
+    let firstChildsR : Result<array<JsonElement>, string> = 
+        propsR 
+        |> Result.bind (fun (props: array<JsonProperty>) -> arrayChilds props.[0]) 
+        |> Result.map Seq.toArray
+    match firstChildsR with
+    | Error e -> failwith "Invalid branch"
+    | Ok elems ->
+        Assert.Equal("fd632797a9adb10d068868f86a2b6951", elems.[0].GetProperty("md5").GetString())
+        Assert.Equal("keno.html", elems.[0].GetProperty("name").GetString())
+        Assert.True(elems.[0].GetProperty("required").GetBoolean())
+
         
