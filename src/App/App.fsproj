@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Json.fs" />
     <Compile Include="Hexadecimal.fs" />
     <Compile Include="Cryptography.fs" />
     <Compile Include="FileSystem.fs" />
