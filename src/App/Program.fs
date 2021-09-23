@@ -1,6 +1,11 @@
 ﻿module App.Program
 
 open CommandLine
+open Microsoft.Extensions.DependencyInjection
+open Microsoft.Extensions.Hosting
+
+module Startup = App.Startup
+
 type CLIResult = 
     | Success = 0
     | CommandLineParseError = 1
@@ -15,5 +20,14 @@ let parseCommandLine (argv: array<string>) : Result<Parsed<Options>, CLIResult> 
 
 [<EntryPoint>]
 let main argv =
-    printfn "Hello World from F#!"
-    0 // return an integer exit code
+    async {
+        use host : IHost = Startup.createHostBuilder(argv).Build()
+        let scope : IServiceScope = host.Services.CreateScope()
+        let app : App = scope.ServiceProvider.GetRequiredService<App>()
+        match parseCommandLine argv with
+        | Error e -> return int e
+        | Ok parsed -> 
+            do! app.Run(parsed.Value)
+            return int CLIResult.Success
+    } |> Async.RunSynchronously
+
