@@ -2,6 +2,7 @@ module App.FileSystem
 
 type Directory = System.IO.Directory
 type DirectoryInfo = System.IO.DirectoryInfo
+type FileInfo = System.IO.FileInfo
 type Path = System.IO.Path
 type Stack<'t> = System.Collections.Generic.Stack<'t>
 
@@ -26,4 +27,9 @@ let toPath (segments: Stack<string>) (fileNameO: Option<string>) : string =
         | Some fileName -> Array.singleton fileName
     let path : array<string> = Array.append (segments.ToArray() |> Array.rev) fileSegment
     Path.Combine(path)
+
+let countBytes (path: string) : int64 =
+    FileInfo(path).Length
+
+
     
