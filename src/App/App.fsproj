@@ -14,4 +14,8 @@
     <Compile Include="Program.fs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Http.fs" Version="5.4.0" />
+  </ItemGroup>
+
 </Project>
