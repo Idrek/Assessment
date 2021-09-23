@@ -60,3 +60,35 @@ let ``Tests for Tree.FromJson method`` () =
             |])
         Assert.Equal(output, tree)
 
+[<Fact>]
+let ``Tests for Tree.ToPaths method`` () =
+    let assets : Tree = 
+        Dir (".", [|
+                Dir ("level1", [|
+                    File { 
+                        Md5 = "fd632797a9adb10d068868f86a2b6951"
+                        Name = "keno.html"
+                        Required = true 
+                    }
+                    File { 
+                        Md5 = "4262186789c88657ddeaef6acbaaa45f"
+                        Name = "roulette.html"
+                        Required = true 
+                    }
+                    Dir ("level2", [|
+                        File { 
+                            Md5 = "2e480334d198ce3be300cbaa796d8dcf"
+                            Name = "index.html"
+                            Required = true 
+                        }
+                    |])
+                |])
+            |])
+    let result : array<string * string> = [|
+        ("fd632797a9adb10d068868f86a2b6951", "./level1/keno.html")
+        ("4262186789c88657ddeaef6acbaaa45f", "./level1/roulette.html")
+        ("2e480334d198ce3be300cbaa796d8dcf", "./level1/level2/index.html")
+    |]
+    Assert.Equal<array<string * string>>(result, Tree.ToPaths assets)
+
+    
