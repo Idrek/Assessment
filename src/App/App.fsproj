@@ -12,6 +12,7 @@
     <Compile Include="Cryptography.fs" />
     <Compile Include="FileSystem.fs" />
     <Compile Include="Assets.fs" />
+    <Compile Include="App.fs" />
     <Compile Include="Startup.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
