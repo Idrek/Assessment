@@ -21,3 +21,7 @@ let runRequest (request: TRequest) : Async<Result<string, string>> =
             | ex -> return Result.Error ex.Message
     } |> Job.toAsync
 
+let download (uri: string) : Async<Result<string, string>> =
+    uri |> createRequest |> runRequest
+
+    
