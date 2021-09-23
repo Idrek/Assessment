@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Hexadecimal.fs" />
     <Compile Include="FileSystem.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
