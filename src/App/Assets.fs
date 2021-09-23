@@ -6,3 +6,7 @@ type File = {
     Required: bool
 } 
 
+type Tree = 
+    | Dir of string * array<Tree>
+    | File of File
+    
