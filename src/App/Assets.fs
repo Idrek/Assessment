@@ -10,7 +10,7 @@ type Queue<'t> = System.Collections.Generic.Queue<'t>
 type Stack<'t> = System.Collections.Generic.Stack<'t>
 type String = System.String
 
-type File = {
+type FileAttributes = {
     Md5: string
     Name: string
     Required: bool
@@ -18,7 +18,7 @@ type File = {
 
 type Tree = 
     | Dir of string * array<Tree>
-    | File of File
+    | File of FileAttributes
 with
     static member FromJson (assets: JsonDocument) : Result<Tree, string> =
             let mutable isError : bool = false
@@ -45,7 +45,7 @@ with
                                       object.TryGetProperty("required") with
                                 | (true, md5), (true, name), (true, required) ->
                                     yield File (
-                                        let f : File = {
+                                        let f : FileAttributes = {
                                             Md5 = md5.GetString()
                                             Name = name.GetString()
                                             Required = required.GetBoolean()
