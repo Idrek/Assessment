@@ -1,5 +1,6 @@
 module App.Json
 
+type JsonDocument = System.Text.Json.JsonDocument
 type JsonElement = System.Text.Json.JsonElement
 type JsonProperty = System.Text.Json.JsonProperty
 type JsonValueKind = System.Text.Json.JsonValueKind
@@ -20,3 +21,7 @@ let isDir (item: JsonElement) : bool =
     | Ok properties -> 
         properties |> Seq.head |> fun property -> property.Value.ValueKind = JsonValueKind.Array
         
+let ofString (data: string) : Result<JsonDocument, string> =
+    try Ok <| JsonDocument.Parse(data)
+    with | ex -> Result.Error ex.Message
+    
