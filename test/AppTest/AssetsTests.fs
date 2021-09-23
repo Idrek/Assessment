@@ -1,8 +1,17 @@
 module AppTest.AssetsTests
 
 open App.Assets
+open Microsoft.Extensions.DependencyInjection
 open System.Text.Json
 open Xunit
+
+type IServiceProvider = System.IServiceProvider
+
+let provider () : IServiceProvider =
+    let services : ServiceCollection = ServiceCollection()
+    services.AddHttpClient()
+        .AddScoped<IDownloable, Assets>() |> ignore
+    services.BuildServiceProvider() :> IServiceProvider
 
 [<Fact>]
 let ``Tests for Tree.FromJson method`` () =
