@@ -38,9 +38,11 @@ type App (asset: IDownloable) =
                         let fileUri : string = Path.Join(baseUri, path)
                         match Cryptography.checkMd5 md5hash fullPath, File.Exists fullPath with
                         | false, true ->
+                            printfn "Resuming file %A ..." fullPath
                             let! _ = asset.Resume fileUri fullPath
                             ()
                         | false, false ->
+                            printfn "Downloading file %A ..." fullPath 
                             let! _ = asset.Download fileUri fullPath
                             ()
                         | _ -> ()
