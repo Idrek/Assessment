@@ -12,6 +12,7 @@ type FileStream = System.IO.FileStream
 type HttpClient = System.Net.Http.HttpClient
 type HttpMethod = System.Net.Http.HttpMethod
 type HttpRequestMessage = System.Net.Http.HttpRequestMessage
+type HttpStatusCode = System.Net.HttpStatusCode
 type IHttpClientFactory = System.Net.Http.IHttpClientFactory
 type JsonDocument = System.Text.Json.JsonDocument
 type JsonElement = System.Text.Json.JsonElement
@@ -138,9 +139,10 @@ type Assets (clientFactory: IHttpClientFactory) =
                         client.DefaultRequestHeaders.Range <- range
                         use httpRequestMessage : HttpRequestMessage = new HttpRequestMessage(HttpMethod.Get, Uri(uri))
                         use! response = client.SendAsync(httpRequestMessage) |> Async.AwaitTask
+                        isEnd <- response.StatusCode = HttpStatusCode.RequestedRangeNotSatisfiable
                         use! responseStream = response.Content.ReadAsStreamAsync() |> Async.AwaitTask
-                        if read > 0
                         let read = responseStream.Read(buffer, 0, size)
+                        if read > 0 && not isEnd
                         then
                             let bufferByteOffset : int = 0
                             fileStream.Write(buffer, bufferByteOffset, read)
