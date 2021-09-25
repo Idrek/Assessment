@@ -101,15 +101,16 @@ type Assets (clientFactory: IHttpClientFactory) =
     interface IDownloable with
 
         member this.Download (uri: string) (localPath: string) : Async<Result<unit, string>> =
+            let size : int = pown 2 12
             let client : HttpClient = clientFactory.CreateClient("Assets")
             let fileStream : FileStream = File.Create(localPath)
             async {
-                let buffer : array<byte> = Array.zeroCreate 4096
+                let buffer : array<byte> = Array.zeroCreate size
                 let mutable isEnd : bool = false
                 try
                     use! responseStream = client.GetStreamAsync(uri) |> Async.AwaitTask
                     while not isEnd do
-                        let read = responseStream.Read(buffer, 0, 4096)
+                        let read = responseStream.Read(buffer, 0, size)
                         if read > 0
                         then
                             let bufferByteOffset : int = 0
@@ -123,22 +124,23 @@ type Assets (clientFactory: IHttpClientFactory) =
             }
 
         member this.Resume (uri: string) (localPath: string) : Async<Result<unit, string>> =
+            let size : int = pown 2 12
             let client : HttpClient = clientFactory.CreateClient("Assets")
             let fileStream : FileStream = new FileStream(localPath, FileMode.Append, FileAccess.Write)
             let mutable count : int64 = FS.countBytes localPath
             async {
-                let buffer : array<byte> = Array.zeroCreate 4096
+                let buffer : array<byte> = Array.zeroCreate size
                 let mutable isEnd : bool = false
                 try
                     while not isEnd do
                         let range : RangeHeaderValue = 
-                            RangeHeaderValue(Nullable<int64>(count), Nullable<int64>(count + 4096L))
+                            RangeHeaderValue(Nullable<int64>(count), Nullable<int64>(count + int64 size))
                         client.DefaultRequestHeaders.Range <- range
                         use httpRequestMessage : HttpRequestMessage = new HttpRequestMessage(HttpMethod.Get, Uri(uri))
                         use! response = client.SendAsync(httpRequestMessage) |> Async.AwaitTask
                         use! responseStream = response.Content.ReadAsStreamAsync() |> Async.AwaitTask
-                        let read = responseStream.Read(buffer, 0, 4096)
                         if read > 0
+                        let read = responseStream.Read(buffer, 0, size)
                         then
                             let bufferByteOffset : int = 0
                             fileStream.Write(buffer, bufferByteOffset, read)
